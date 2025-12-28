@@ -9,6 +9,10 @@ export class Role {
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Permission' }] })
   permissions: Types.ObjectId[];
+
+  @Prop({ default: false })
+  isSuperAdmin: boolean;
+
 }
 
 export const RoleSchema = SchemaFactory.createForClass(Role);

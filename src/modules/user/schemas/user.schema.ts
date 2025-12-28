@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import * as bcrypt from 'bcrypt';
 
 @Schema({timestamps :true})
@@ -15,6 +15,9 @@ export class User extends Document {
 
     @Prop({ default: true })
     isActive: boolean;
+
+    @Prop({ required: true, type: Types.ObjectId, ref: 'Role' })
+    roleId: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

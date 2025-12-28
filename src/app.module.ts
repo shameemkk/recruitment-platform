@@ -1,17 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule } from './user/user.module';
-import { PermissionModule } from './permission/permission.module';
-import { RoleModule } from './role/role.module';
+import { UserModule } from './modules/user/user.module';
+import { PermissionModule } from './modules/permission/permission.module';
+import { RoleModule } from './modules/role/role.module';
+import { SeedModule } from './seed/seed.module';
 import databaseConfig from './config/database.config';
+import adminConfig from './config/admin.config';
 
 
 @Module({
   imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [databaseConfig],
+            load: [databaseConfig,adminConfig],
         }),
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
@@ -23,6 +25,7 @@ import databaseConfig from './config/database.config';
         UserModule,
         PermissionModule,
         RoleModule,
+        SeedModule,
     
     ],
   controllers: [],
