@@ -13,6 +13,7 @@ import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { SuperAdminGuard } from '../../common/guards/super-admin.guard';
+import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
 
 @Controller('permissions')
 @UseGuards(AuthGuard('jwt'), SuperAdminGuard)
@@ -30,17 +31,17 @@ export class PermissionController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseObjectIdPipe) id: string) {
     return this.permissionService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
+  update(@Param('id', ParseObjectIdPipe) id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
     return this.permissionService.update(id, updatePermissionDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseObjectIdPipe) id: string) {
     return this.permissionService.remove(id);
   }
 }
