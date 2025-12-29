@@ -17,15 +17,15 @@ export class JobTemplateService {
   }
 
   async findAll(): Promise<JobTemplateDocument[]> {
-    return this.jobTemplateModel.find().exec();
+    return this.jobTemplateModel.find().lean().exec();
   }
 
   async findOne(id: string): Promise<JobTemplateDocument> {
-    const template = await this.jobTemplateModel.findById(id).exec();
+    const template = await this.jobTemplateModel.findById(id).lean().exec();
     if (!template) {
       throw new NotFoundException(`Job template with ID ${id} not found`);
     }
-    return template;
+    return template as JobTemplateDocument;
   }
 
   async update(id: string, updateJobTemplateDto: UpdateJobTemplateDto): Promise<JobTemplateDocument> {

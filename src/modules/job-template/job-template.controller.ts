@@ -40,7 +40,7 @@ export class JobTemplateController {
   @Permissions('READ_JOB_TEMPLATE')
   async findAll(): Promise<JobTemplateResponseDto[]> {
     const templates = await this.jobTemplateService.findAll();
-    return plainToInstance(JobTemplateResponseDto, templates.map(t => t.toObject()), { excludeExtraneousValues: true });
+    return plainToInstance(JobTemplateResponseDto, templates, { excludeExtraneousValues: true });
   }
 
   @Get(':id')
@@ -48,7 +48,7 @@ export class JobTemplateController {
   @Permissions('READ_JOB_TEMPLATE')
   async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<JobTemplateResponseDto> {
     const template = await this.jobTemplateService.findOne(id);
-    return plainToInstance(JobTemplateResponseDto, template.toObject(), { excludeExtraneousValues: true });
+    return plainToInstance(JobTemplateResponseDto, template, { excludeExtraneousValues: true });
   }
 
   @Patch(':id')

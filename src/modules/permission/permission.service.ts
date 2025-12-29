@@ -20,11 +20,11 @@ export class PermissionService {
   }
 
   async findAll(): Promise<Permission[]> {
-    return this.permissionModel.find().exec();
+    return this.permissionModel.find().lean().exec();
   }
 
   async findOne(id: string): Promise<Permission> {
-    const permission = await this.permissionModel.findById(id).exec();
+    const permission = await this.permissionModel.findById(id).lean().exec();
     if (!permission) {
       throw new NotFoundException(`Permission with ID '${id}' not found`);
     }

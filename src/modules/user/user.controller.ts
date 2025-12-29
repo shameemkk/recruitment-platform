@@ -31,13 +31,13 @@ export class UserController {
   @Get()
   async findAll(): Promise<UserResponseDto[]> {
     const users = await this.userService.findAll();
-    return plainToInstance(UserResponseDto, users.map(u => u.toObject()), { excludeExtraneousValues: true });
+    return plainToInstance(UserResponseDto, users, { excludeExtraneousValues: true });
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<UserResponseDto> {
     const user = await this.userService.findOne(id);
-    return plainToInstance(UserResponseDto, user.toObject(), { excludeExtraneousValues: true });
+    return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
   }
 
   @Patch(':id')

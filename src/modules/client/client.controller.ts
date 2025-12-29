@@ -42,7 +42,7 @@ export class ClientController {
     const clients = user.role === 'ADMIN' 
       ? await this.clientService.findAll()
       : await this.clientService.findAllForEmployee(user.userId);
-    return plainToInstance(ClientResponseDto, clients.map(c => c.toObject()), { excludeExtraneousValues: true });
+    return plainToInstance(ClientResponseDto, clients, { excludeExtraneousValues: true });
   }
 
   @Get(':id')
@@ -55,7 +55,7 @@ export class ClientController {
     const client = user.role === 'ADMIN'
       ? await this.clientService.findOne(id)
       : await this.clientService.findOneForEmployee(id, user.userId);
-    return plainToInstance(ClientResponseDto, client.toObject(), { excludeExtraneousValues: true });
+    return plainToInstance(ClientResponseDto, client, { excludeExtraneousValues: true });
   }
 
   @Patch(':id')

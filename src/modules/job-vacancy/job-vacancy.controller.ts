@@ -53,7 +53,7 @@ export class JobVacancyController {
     } else {
       vacancies = await this.jobVacancyService.findAll();
     }
-    return vacancies.map(v => plainToInstance(JobVacancyResponseDto, v.toObject(), { excludeExtraneousValues: true }));
+    return vacancies.map(v => plainToInstance(JobVacancyResponseDto, v, { excludeExtraneousValues: true }));
   }
 
   @Get(':id')
@@ -64,7 +64,7 @@ export class JobVacancyController {
     @CurrentUser() user: { userId: string; role: string },
   ): Promise<JobVacancyResponseDto> {
     const vacancy = await this.jobVacancyService.findOne(id, user.userId, user.role);
-    return plainToInstance(JobVacancyResponseDto, vacancy.toObject(), { excludeExtraneousValues: true });
+    return plainToInstance(JobVacancyResponseDto, vacancy, { excludeExtraneousValues: true });
   }
 
   @Patch(':id')

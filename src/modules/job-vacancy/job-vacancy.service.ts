@@ -21,34 +21,33 @@ export class JobVacancyService {
 
     const vacancy = new this.jobVacancyModel({
       ...createJobVacancyDto,
-      fields: template.fields, // Always snapshot from template
+      fields: template.fields,
       createdBy: userId,
     });
     return vacancy.save();
   }
 
   async findAll(): Promise<JobVacancyDocument[]> {
-    return this.jobVacancyModel.find().exec();
+    return this.jobVacancyModel.find().lean().exec();
   }
 
   async findByClient(clientId: string): Promise<JobVacancyDocument[]> {
-    return this.jobVacancyModel.find({ clientId }).exec();
+    return this.jobVacancyModel.find({ clientId }).lean().exec();
   }
 
   async findByAgency(agencyId: string): Promise<JobVacancyDocument[]> {
-    return this.jobVacancyModel.find({ assignedAgencies: agencyId }).exec();
+    return this.jobVacancyModel.find({ assignedAgencies: agencyId }).lean().exec();
   }
 
   async findOne(id: string, userId?: string, role?: string): Promise<JobVacancyDocument> {
-    const vacancy = await this.jobVacancyModel.findById(id).exec();
+    const vacancy = await this.jobVacancyModel.findById(id).lean().exec();
     if (!vacancy) {
       throw new NotFoundException(`Job vacancy with ID ${id} not found`);
     }
-    // AGENCY can only view vacancies they're assigned to
     if (role === 'AGENCY' && !vacancy.assignedAgencies.some(a => a.toString() === userId)) {
       throw new ForbiddenException('You are not assigned to this job vacancy');
     }
-    return vacancy;
+    return vacancy as JobVacancyDocument;
   }
 
   async update(id: string, updateJobVacancyDto: UpdateJobVacancyDto, userId: string): Promise<JobVacancyDocument> {
@@ -56,7 +55,6 @@ export class JobVacancyService {
     if (!vacancy) {
       throw new NotFoundException(`Job vacancy with ID ${id} not found`);
     }
-    // Only the creator can update
     if (vacancy.createdBy.toString() !== userId) {
       throw new ForbiddenException('You can only update job vacancies you created');
     }
@@ -71,7 +69,6 @@ export class JobVacancyService {
     if (!vacancy) {
       throw new NotFoundException(`Job vacancy with ID ${id} not found`);
     }
-    // Only the creator can delete
     if (vacancy.createdBy.toString() !== userId) {
       throw new ForbiddenException('You can only delete job vacancies you created');
     }

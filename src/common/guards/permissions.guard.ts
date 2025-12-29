@@ -12,8 +12,6 @@ export class PermissionsGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(Role.name) private roleModel: Model<Role>,
-    @InjectModel(Permission.name) private permissionModel: Model<Permission>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -33,12 +31,16 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('Access denied');
     }
 
-    const dbUser = await this.userModel.findById(user.userId).exec();
+    const dbUser = await this.userModel
+      .findById(user.userId)
+      .populate({ path: 'roleId', populate: { path: 'permissions' } })
+      .lean()
+      .exec();
     if (!dbUser) {
       throw new ForbiddenException('User not found');
     }
 
-    const role = await this.roleModel.findById(dbUser.roleId).populate('permissions').exec();
+    const role = dbUser.roleId as unknown as Role;
     if (!role) {
       throw new ForbiddenException('Role not found');
     }

@@ -11,7 +11,6 @@ export class RolesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     @InjectModel(User.name) private userModel: Model<User>,
-    @InjectModel(Role.name) private roleModel: Model<Role>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -31,12 +30,12 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Access denied');
     }
 
-    const dbUser = await this.userModel.findById(user.userId).exec();
+    const dbUser = await this.userModel.findById(user.userId).populate('roleId').lean().exec();
     if (!dbUser) {
       throw new ForbiddenException('User not found');
     }
 
-    const role = await this.roleModel.findById(dbUser.roleId).exec();
+    const role = dbUser.roleId as unknown as Role;
     if (!role) {
       throw new ForbiddenException('Role not found');
     }

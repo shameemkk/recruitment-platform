@@ -53,7 +53,7 @@ export class CandidateController {
     } else {
       candidates = await this.candidateService.findAll();
     }
-    return candidates.map(c => plainToInstance(CandidateResponseDto, c.toObject(), { excludeExtraneousValues: true }));
+    return candidates.map(c => plainToInstance(CandidateResponseDto, c, { excludeExtraneousValues: true }));
   }
 
   @Get(':id')
@@ -64,7 +64,7 @@ export class CandidateController {
     @CurrentUser() user: { userId: string; role: string },
   ): Promise<CandidateResponseDto> {
     const candidate = await this.candidateService.findOne(id, user.userId, user.role);
-    return plainToInstance(CandidateResponseDto, candidate.toObject(), { excludeExtraneousValues: true });
+    return plainToInstance(CandidateResponseDto, candidate, { excludeExtraneousValues: true });
   }
 
   @Patch(':id')

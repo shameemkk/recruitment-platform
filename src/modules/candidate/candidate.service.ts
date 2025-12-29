@@ -54,19 +54,19 @@ export class CandidateService {
   }
 
   async findAll(): Promise<CandidateDocument[]> {
-    return this.candidateModel.find().exec();
+    return this.candidateModel.find().lean().exec();
   }
 
   async findByJobVacancy(jobVacancyId: string): Promise<CandidateDocument[]> {
-    return this.candidateModel.find({ jobVacancyId }).exec();
+    return this.candidateModel.find({ jobVacancyId }).lean().exec();
   }
 
   async findByAgency(agencyId: string): Promise<CandidateDocument[]> {
-    return this.candidateModel.find({ createdBy: agencyId }).exec();
+    return this.candidateModel.find({ createdBy: agencyId }).lean().exec();
   }
 
   async findOne(id: string, userId?: string, role?: string): Promise<CandidateDocument> {
-    const candidate = await this.candidateModel.findById(id).exec();
+    const candidate = await this.candidateModel.findById(id).lean().exec();
     if (!candidate) {
       throw new NotFoundException(`Candidate with ID ${id} not found`);
     }
@@ -75,7 +75,7 @@ export class CandidateService {
       throw new ForbiddenException('You can only view candidates you created');
     }
 
-    return candidate;
+    return candidate as CandidateDocument;
   }
 
   async update(id: string, updateCandidateDto: UpdateCandidateDto, userId: string): Promise<CandidateDocument> {

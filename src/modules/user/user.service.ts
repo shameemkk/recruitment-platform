@@ -33,11 +33,11 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userModel.find().populate('roleId').exec();
+    return this.userModel.find().populate('roleId').lean().exec();
   }
 
   async findOne(id: string): Promise<User> {
-    const user = await this.userModel.findById(id).populate('roleId').exec();
+    const user = await this.userModel.findById(id).populate('roleId').lean().exec();
     if (!user) {
       throw new NotFoundException(`User with ID '${id}' not found`);
     }

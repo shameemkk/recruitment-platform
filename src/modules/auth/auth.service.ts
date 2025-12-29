@@ -32,7 +32,7 @@ export class AuthService {
     }
 
     // Get role name for the token
-    const role = await this.roleModel.findById(user.roleId).exec();
+    const role = await this.roleModel.findById(user.roleId).lean().exec();
     const roleName = role?.name || '';
 
     const payload = {

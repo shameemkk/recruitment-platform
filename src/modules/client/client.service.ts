@@ -34,18 +34,19 @@ export class ClientService {
   }
 
   async findAll(): Promise<Client[]> {
-    return this.clientModel.find().populate('assignedEmployeeId', 'fullName email').exec();
+    return this.clientModel.find().populate('assignedEmployeeId', 'fullName email').lean().exec();
   }
 
   async findAllForEmployee(employeeId: string): Promise<Client[]> {
     return this.clientModel
       .find({ assignedEmployeeId: new Types.ObjectId(employeeId) })
       .populate('assignedEmployeeId', 'fullName email')
+      .lean()
       .exec();
   }
 
   async findOne(id: string): Promise<Client> {
-    const client = await this.clientModel.findById(id).populate('assignedEmployeeId', 'fullName email').exec();
+    const client = await this.clientModel.findById(id).populate('assignedEmployeeId', 'fullName email').lean().exec();
     if (!client) {
       throw new NotFoundException(`Client with ID '${id}' not found`);
     }
@@ -56,6 +57,7 @@ export class ClientService {
     const client = await this.clientModel
       .findOne({ _id: id, assignedEmployeeId: new Types.ObjectId(employeeId) })
       .populate('assignedEmployeeId', 'fullName email')
+      .lean()
       .exec();
     if (!client) {
       throw new NotFoundException(`Client with ID '${id}' not found or not assigned to you`);
@@ -105,12 +107,12 @@ export class ClientService {
   }
 
   private async validateEmployee(employeeId: string): Promise<void> {
-    const employee = await this.userModel.findById(employeeId).exec();
+    const employee = await this.userModel.findById(employeeId).populate('roleId').lean().exec();
     if (!employee) {
       throw new NotFoundException(`Employee with ID '${employeeId}' not found`);
     }
 
-    const role = await this.roleModel.findById(employee.roleId).exec();
+    const role = employee.roleId as unknown as Role;
     if (!role || role.name !== 'EMPLOYEE') {
       throw new ForbiddenException('Assigned user must have EMPLOYEE role');
     }

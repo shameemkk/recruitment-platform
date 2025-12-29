@@ -26,11 +26,11 @@ export class RoleService {
   }
 
   async findAll(): Promise<Role[]> {
-    return this.roleModel.find().populate('permissions').exec();
+    return this.roleModel.find().populate('permissions').lean().exec();
   }
 
   async findOne(id: string): Promise<Role> {
-    const role = await this.roleModel.findById(id).populate('permissions').exec();
+    const role = await this.roleModel.findById(id).populate('permissions').lean().exec();
     if (!role) {
       throw new NotFoundException(`Role with ID '${id}' not found`);
     }
