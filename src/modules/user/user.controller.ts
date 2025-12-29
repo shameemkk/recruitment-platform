@@ -9,9 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { plainToInstance } from 'class-transformer';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import { SuperAdminGuard } from '../../common/guards/super-admin.guard';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe';
 
@@ -21,23 +23,27 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    const user = await this.userService.create(createUserDto);
+    return plainToInstance(UserResponseDto, user.toObject(), { excludeExtraneousValues: true });
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  async findAll(): Promise<UserResponseDto[]> {
+    const users = await this.userService.findAll();
+    return plainToInstance(UserResponseDto, users.map(u => u.toObject()), { excludeExtraneousValues: true });
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.userService.findOne(id);
+  async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<UserResponseDto> {
+    const user = await this.userService.findOne(id);
+    return plainToInstance(UserResponseDto, user.toObject(), { excludeExtraneousValues: true });
   }
 
   @Patch(':id')
-  update(@Param('id', ParseObjectIdPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  async update(@Param('id', ParseObjectIdPipe) id: string, @Body() updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+    const user = await this.userService.update(id, updateUserDto);
+    return plainToInstance(UserResponseDto, user.toObject(), { excludeExtraneousValues: true });
   }
 
   @Delete(':id')
