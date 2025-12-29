@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from './modules/user/user.module';
 import { PermissionModule } from './modules/permission/permission.module';
 import { RoleModule } from './modules/role/role.module';
@@ -21,6 +23,10 @@ import jwtConfig from './config/jwt.config';
             isGlobal: true,
             load: [databaseConfig, adminConfig, jwtConfig],
         }),
+        ThrottlerModule.forRoot([ { ttl: 60000, // 1 minute
+                limit: 100, // 100 requests per minute  
+                },
+        ]),
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
@@ -39,6 +45,8 @@ import jwtConfig from './config/jwt.config';
         AuthModule,
     ],
     controllers: [],
-    providers: [],
+    providers: [
+        { provide: APP_GUARD, useClass: ThrottlerGuard },
+    ],
 })
 export class AppModule { }

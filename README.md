@@ -82,6 +82,18 @@ src/
 - **Authentication**: Passport.js with JWT strategy
 - **Validation**: class-validator & class-transformer
 - **Password Hashing**: bcrypt
+- **Rate Limiting**: @nestjs/throttler
+
+### Rate Limiting
+
+The API implements global rate limiting to protect against abuse and ensure fair usage:
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+| `TTL` | 60 seconds | Time window for rate limit |
+| `Limit` | 100 requests | Maximum requests per time window |
+
+When the rate limit is exceeded, the API returns a `429 Too Many Requests` response.
 
 ### Request Flow
 
@@ -188,6 +200,8 @@ export class ClientController {
 | `POST` | `/auth/refresh` | Get new access token using refresh token cookie | Cookie |
 | `POST` | `/auth/logout` | Clear refresh token cookie | Public |
 | `GET` | `/auth/profile` | Get current user profile | JWT |
+
+> **Note:** Only Super Admin users can create and manage user accounts. Regular users cannot self-register. Use the login endpoint with admin credentials to access user management features.
 
 #### Refresh Token Flow
 
