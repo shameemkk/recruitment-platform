@@ -1,98 +1,304 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Recruitment Platform
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS-based recruitment management system with role-based access control (RBAC), supporting multi-tenant operations for managing clients, job vacancies, candidates, and recruitment workflows.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Setup Instructions
 
-## Description
+### Prerequisites
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Node.js (v18 or higher)
+- MongoDB (v6 or higher)
+- npm or yarn
 
-## Project setup
+### Installation
 
 ```bash
-$ npm install
+# Clone the repository
+git clone https://github.com/shameemkk/recruitment-platform/
+cd recruitment-platform
+
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env
+# Edit .env with your configuration
+
+# Start the application
+npm run start:dev
 ```
 
-## Compile and run the project
+### Scripts
 
-```bash
-# development
-$ npm run start
+| Command | Description |
+|---------|-------------|
+| `npm run start` | Start production server |
+| `npm run start:dev` | Start development server with hot reload |
+| `npm run build` | Build the application |
 
-# watch mode
-$ npm run start:dev
+## Environment Variables
 
-# production mode
-$ npm run start:prod
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/recruitment-platform` |
+| `JWT_SECRET` | Secret key for JWT token signing | `your-secure-secret-key` |
+| `JWT_EXPIRES_IN` | JWT token expiration time | `1d` |
+| `ADMIN_EMAIL` | Default super admin email | `admin@system.com` |
+| `ADMIN_PASSWORD` | Default super admin password | `AdminSecure@2025!` |
+| `PORT` | Application port (optional) | `3000` |
+
+## Architecture Overview
+
+```
+src/
+├── common/                 # Shared utilities
+│   ├── decorators/         # Custom decorators (@Roles, @Permissions, @CurrentUser)
+│   ├── guards/             # Auth guards (RolesGuard, PermissionsGuard, SuperAdminGuard)
+│   └── pipes/              # Validation pipes (ParseObjectIdPipe)
+├── config/                 # Configuration modules
+│   ├── admin.config.ts     # Admin credentials config
+│   ├── database.config.ts  # MongoDB config
+│   └── jwt.config.ts       # JWT config
+├── modules/
+│   ├── auth/               # Authentication (JWT login, profile)
+│   ├── user/               # User management (CRUD)
+│   ├── role/               # Role management
+│   ├── permission/         # Permission management
+│   ├── client/             # Client/company management
+│   ├── job-template/       # Reusable job templates
+│   ├── job-vacancy/        # Active job postings
+│   └── candidate/          # Candidate tracking
+├── seed/                   # Database seeding (auto-creates admin)
+├── app.module.ts           # Root module
+└── main.ts                 # Application entry point
 ```
 
-## Run tests
+### Tech Stack
 
-```bash
-# unit tests
-$ npm run test
+- **Framework**: NestJS 11
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: Passport.js with JWT strategy
+- **Validation**: class-validator & class-transformer
+- **Password Hashing**: bcrypt
 
-# e2e tests
-$ npm run test:e2e
+### Request Flow
 
-# test coverage
-$ npm run test:cov
+```
+Request → JWT Guard → Roles Guard → Permissions Guard → Controller → Service → Database
 ```
 
-## Deployment
+## Role & Permission System
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### How It Works
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+The platform implements a flexible RBAC system with two layers:
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+1. **Roles** - Define user types (e.g., ADMIN, EMPLOYEE, AGENCY)
+2. **Permissions** - Fine-grained access controls assigned to roles
+
+### Data Models
+
+**Role Schema**
+```typescript
+{
+  name: string;           // Role identifier (e.g., "ADMIN", "EMPLOYEE")
+  permissions: ObjectId[]; // Array of permission references
+  isSuperAdmin: boolean;   // Bypasses all permission checks
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Permission Schema**
+```typescript
+{
+  key: string;        // Permission identifier (e.g., "CREATE_CLIENT")
+  description: string; // Human-readable description
+}
+```
 
-## Resources
+**User Schema**
+```typescript
+{
+  fullName: string;
+  email: string;
+  password: string;    // Hashed with bcrypt
+  isActive: boolean;
+  roleId: ObjectId;    // Reference to Role
+}
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Built-in Roles
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+| Role | Description |
+|------|-------------|
+| `ADMIN` | Super admin with `isSuperAdmin: true`, bypasses all permission checks |
 
-## Support
+### Permission Keys
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Permissions follow the pattern `ACTION_RESOURCE`:
 
-## Stay in touch
+| Permission | Description |
+|------------|-------------|
+| `CREATE_CLIENT` | Create new clients |
+| `READ_CLIENT` | View client information |
+| `UPDATE_CLIENT` | Modify client data |
+| `DELETE_CLIENT` | Remove clients |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Similar patterns apply for other resources (job templates, vacancies, candidates).
 
-## License
+### Using Guards & Decorators
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```typescript
+@Controller('clients')
+@UseGuards(AuthGuard('jwt'), RolesGuard, PermissionsGuard)
+export class ClientController {
+  
+  @Post()
+  @Roles('ADMIN')                    // Requires ADMIN role
+  @Permissions('CREATE_CLIENT')      // Requires CREATE_CLIENT permission
+  create(@Body() dto: CreateClientDto) { ... }
+
+  @Get()
+  @Roles('ADMIN', 'EMPLOYEE')        // Multiple roles allowed
+  @Permissions('READ_CLIENT')
+  findAll(@CurrentUser() user) { ... }
+}
+```
+
+### Guard Behavior
+
+- **SuperAdminGuard**: Only allows users with `isSuperAdmin: true`
+- **RolesGuard**: Checks if user's role matches required roles (super admin bypasses)
+- **PermissionsGuard**: Checks if user's role has required permissions (super admin bypasses)
+
+### Creating Custom Roles
+
+1. Create permissions via the Permission API
+2. Create a role with desired permissions via the Role API
+3. Assign the role to users
+
+## API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/auth/login` | Login with email/password | Public |
+| `GET` | `/auth/profile` | Get current user profile | JWT |
+
+### Users (Super Admin Only)
+
+| Method | Endpoint | Description | Guard |
+|--------|----------|-------------|-------|
+| `POST` | `/users` | Create a new user | SuperAdminGuard |
+| `GET` | `/users` | List all users | SuperAdminGuard |
+| `GET` | `/users/:id` | Get user by ID | SuperAdminGuard |
+| `PATCH` | `/users/:id` | Update user | SuperAdminGuard |
+| `DELETE` | `/users/:id` | Delete user | SuperAdminGuard |
+
+### Permissions (Super Admin Only)
+
+| Method | Endpoint | Description | Guard |
+|--------|----------|-------------|-------|
+| `POST` | `/permissions` | Create a new permission | SuperAdminGuard |
+| `GET` | `/permissions` | List all permissions | SuperAdminGuard |
+| `GET` | `/permissions/:id` | Get permission by ID | SuperAdminGuard |
+| `PATCH` | `/permissions/:id` | Update permission | SuperAdminGuard |
+| `DELETE` | `/permissions/:id` | Delete permission | SuperAdminGuard |
+
+### Roles (Super Admin Only)
+
+| Method | Endpoint | Description | Guard |
+|--------|----------|-------------|-------|
+| `POST` | `/roles` | Create a new role | SuperAdminGuard |
+| `GET` | `/roles` | List all roles | SuperAdminGuard |
+| `GET` | `/roles/:id` | Get role by ID | SuperAdminGuard |
+| `PATCH` | `/roles/:id` | Update role | SuperAdminGuard |
+| `DELETE` | `/roles/:id` | Delete role | SuperAdminGuard |
+| `POST` | `/roles/:id/permissions/:permissionKey` | Add single permission to role | SuperAdminGuard |
+| `DELETE` | `/roles/:id/permissions/:permissionKey` | Remove permission from role | SuperAdminGuard |
+| `POST` | `/roles/:id/permissions` | Add multiple permissions (body: `{ permissions: string[] }`) | SuperAdminGuard |
+
+### Clients
+
+| Method | Endpoint | Description | Roles | Permission |
+|--------|----------|-------------|-------|------------|
+| `POST` | `/clients` | Create a new client | ADMIN | `CREATE_CLIENT` |
+| `GET` | `/clients` | List all clients (Admin: all, Employee: assigned only) | ADMIN, EMPLOYEE | `READ_CLIENT` |
+| `GET` | `/clients/:id` | Get client by ID | ADMIN, EMPLOYEE | `READ_CLIENT` |
+| `PATCH` | `/clients/:id` | Update client | ADMIN | `UPDATE_CLIENT` |
+| `DELETE` | `/clients/:id` | Delete client | ADMIN | `DELETE_CLIENT` |
+
+### Job Templates
+
+| Method | Endpoint | Description | Roles | Permission |
+|--------|----------|-------------|-------|------------|
+| `POST` | `/job-templates` | Create a new job template | ADMIN, EMPLOYEE | `CREATE_JOB_TEMPLATE` |
+| `GET` | `/job-templates` | List all job templates | ADMIN, EMPLOYEE | `READ_JOB_TEMPLATE` |
+| `GET` | `/job-templates/:id` | Get job template by ID | ADMIN, EMPLOYEE | `READ_JOB_TEMPLATE` |
+| `PATCH` | `/job-templates/:id` | Update job template | ADMIN, EMPLOYEE | `UPDATE_JOB_TEMPLATE` |
+| `DELETE` | `/job-templates/:id` | Delete job template | ADMIN | `DELETE_JOB_TEMPLATE` |
+
+### Job Vacancies
+
+| Method | Endpoint | Description | Roles | Permission |
+|--------|----------|-------------|-------|------------|
+| `POST` | `/job-vacancies` | Create a new job vacancy | EMPLOYEE | `CREATE_JOB_VACANCY` |
+| `GET` | `/job-vacancies` | List vacancies (Agency: assigned only, supports `?clientId=`) | ADMIN, EMPLOYEE, AGENCY | `READ_JOB_VACANCY` |
+| `GET` | `/job-vacancies/:id` | Get job vacancy by ID | ADMIN, EMPLOYEE, AGENCY | `READ_JOB_VACANCY` |
+| `PATCH` | `/job-vacancies/:id` | Update job vacancy | EMPLOYEE | `UPDATE_JOB_VACANCY` |
+| `DELETE` | `/job-vacancies/:id` | Delete job vacancy | EMPLOYEE | `DELETE_JOB_VACANCY` |
+| `POST` | `/job-vacancies/:id/agencies/:agencyId` | Assign agency to vacancy | EMPLOYEE | `UPDATE_JOB_VACANCY` |
+| `DELETE` | `/job-vacancies/:id/agencies/:agencyId` | Remove agency from vacancy | EMPLOYEE | `UPDATE_JOB_VACANCY` |
+
+### Candidates
+
+| Method | Endpoint | Description | Roles | Permission |
+|--------|----------|-------------|-------|------------|
+| `POST` | `/candidates` | Create a new candidate | ADMIN, AGENCY | `CREATE_CANDIDATE` |
+| `GET` | `/candidates` | List candidates (Agency: own only, supports `?jobVacancyId=`) | ADMIN, EMPLOYEE, AGENCY | `READ_CANDIDATE` |
+| `GET` | `/candidates/:id` | Get candidate by ID | ADMIN, AGENCY | `READ_CANDIDATE` |
+| `PATCH` | `/candidates/:id` | Update candidate | AGENCY | `UPDATE_CANDIDATE` |
+| `DELETE` | `/candidates/:id` | Delete candidate | AGENCY | `DELETE_CANDIDATE` |
+
+---
+
+## All Permissions Reference
+
+| Permission Key | Description | Used By Roles |
+|----------------|-------------|---------------|
+| `CREATE_CLIENT` | Create new clients | ADMIN |
+| `READ_CLIENT` | View client information | ADMIN, EMPLOYEE |
+| `UPDATE_CLIENT` | Modify client data | ADMIN |
+| `DELETE_CLIENT` | Remove clients | ADMIN |
+| `CREATE_JOB_TEMPLATE` | Create job templates | ADMIN, EMPLOYEE |
+| `READ_JOB_TEMPLATE` | View job templates | ADMIN, EMPLOYEE |
+| `UPDATE_JOB_TEMPLATE` | Modify job templates | ADMIN, EMPLOYEE |
+| `DELETE_JOB_TEMPLATE` | Remove job templates | ADMIN |
+| `CREATE_JOB_VACANCY` | Create job vacancies | EMPLOYEE |
+| `READ_JOB_VACANCY` | View job vacancies | ADMIN, EMPLOYEE, AGENCY |
+| `UPDATE_JOB_VACANCY` | Modify job vacancies & assign agencies | EMPLOYEE |
+| `DELETE_JOB_VACANCY` | Remove job vacancies | EMPLOYEE |
+| `CREATE_CANDIDATE` | Create candidates | ADMIN, AGENCY |
+| `READ_CANDIDATE` | View candidates | ADMIN, EMPLOYEE, AGENCY |
+| `UPDATE_CANDIDATE` | Modify candidates | AGENCY |
+| `DELETE_CANDIDATE` | Remove candidates | AGENCY |
+
+---
+
+## Role Summary
+
+| Role | Description | Access Level |
+|------|-------------|--------------|
+| `ADMIN` | Super administrator | Full access (bypasses all permission checks via `isSuperAdmin: true`) |
+| `EMPLOYEE` | Internal staff | Manages clients, job templates, job vacancies |
+| `AGENCY` | External recruitment agency | Manages candidates, views assigned job vacancies |
+
+---
+
+## Default Admin Account
+
+On first startup, the system automatically seeds:
+- **Role**: ADMIN (with `isSuperAdmin: true`)
+- **User**: Super Admin with credentials from environment variables
+
+Use these credentials to log in and create additional roles, permissions, and users.
