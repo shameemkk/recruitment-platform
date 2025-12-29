@@ -1,6 +1,7 @@
-import { IsString, IsOptional, IsMongoId, IsArray, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsMongoId, IsArray, IsBoolean, IsNotEmpty } from 'class-validator';
 
 export class CreateJobVacancyDto {
+  @IsNotEmpty()
   @IsString()
   title: string;
 
@@ -8,9 +9,11 @@ export class CreateJobVacancyDto {
   @IsString()
   description?: string;
 
+  @IsNotEmpty()
   @IsMongoId()
   clientId: string;
 
+  @IsNotEmpty()
   @IsMongoId()
   jobTemplateId: string;
 

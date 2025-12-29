@@ -59,8 +59,11 @@ export class JobVacancyController {
   @Get(':id')
   @Roles('ADMIN', 'EMPLOYEE', 'AGENCY')
   @Permissions('READ_JOB_VACANCY')
-  async findOne(@Param('id', ParseObjectIdPipe) id: string): Promise<JobVacancyResponseDto> {
-    const vacancy = await this.jobVacancyService.findOne(id);
+  async findOne(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() user: { userId: string; role: string },
+  ): Promise<JobVacancyResponseDto> {
+    const vacancy = await this.jobVacancyService.findOne(id, user.userId, user.role);
     return plainToInstance(JobVacancyResponseDto, vacancy.toObject(), { excludeExtraneousValues: true });
   }
 
@@ -70,16 +73,20 @@ export class JobVacancyController {
   async update(
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() updateJobVacancyDto: UpdateJobVacancyDto,
+    @CurrentUser() user: { userId: string },
   ): Promise<JobVacancyResponseDto> {
-    const vacancy = await this.jobVacancyService.update(id, updateJobVacancyDto);
+    const vacancy = await this.jobVacancyService.update(id, updateJobVacancyDto, user.userId);
     return plainToInstance(JobVacancyResponseDto, vacancy.toObject(), { excludeExtraneousValues: true });
   }
 
   @Delete(':id')
   @Roles('EMPLOYEE')
   @Permissions('DELETE_JOB_VACANCY')
-  remove(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.jobVacancyService.remove(id);
+  remove(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.jobVacancyService.remove(id, user.userId);
   }
 
   @Post(':id/agencies/:agencyId')

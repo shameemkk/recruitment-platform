@@ -1,9 +1,11 @@
-import { IsString, IsOptional, IsMongoId, IsObject, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsMongoId, IsObject, IsIn, IsNotEmpty } from 'class-validator';
 
 export class CreateCandidateDto {
+  @IsNotEmpty()
   @IsMongoId()
   jobVacancyId: string;
 
+  @IsNotEmpty()
   @IsObject()
   data: Record<string, any>;
 

@@ -1,9 +1,11 @@
-import { IsString, IsEmail, IsOptional, IsMongoId, IsBoolean } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsMongoId, IsBoolean, IsNotEmpty } from 'class-validator';
 
 export class CreateClientDto {
+  @IsNotEmpty()
   @IsString()
   name: string;
 
+  @IsNotEmpty()
   @IsEmail()
   email: string;
 
@@ -23,6 +25,7 @@ export class CreateClientDto {
   @IsString()
   notes?: string;
 
+  @IsNotEmpty()
   @IsMongoId()
   assignedEmployeeId: string;
 
