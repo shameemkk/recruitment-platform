@@ -41,11 +41,13 @@ npm run start:dev
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/recruitment-platform` |
-| `JWT_SECRET` | Secret key for JWT token signing | `your-secure-secret-key` |
-| `JWT_EXPIRES_IN` | JWT token expiration time | `1d` |
+| `JWT_SECRET` | Secret key for access token signing | `your-secure-secret-key` |
+| `JWT_EXPIRES_IN` | Access token expiration time | `15m` |
+| `JWT_REFRESH_SECRET` | Secret key for refresh token signing | `your-refresh-secret-key` |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiration time | `7d` |
 | `ADMIN_EMAIL` | Default super admin email | `admin@system.com` |
 | `ADMIN_PASSWORD` | Default super admin password | `AdminSecure@2025!` |
-| `PORT` | Application port (optional) | `3000` |
+| `NODE_ENV` | Environment mode (enables secure cookies in production) | `production` |
 
 ## Architecture Overview
 
@@ -182,8 +184,30 @@ export class ClientController {
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/auth/login` | Login with email/password | Public |
+| `POST` | `/auth/login` | Login with email/password, returns access token and sets refresh token cookie | Public |
+| `POST` | `/auth/refresh` | Get new access token using refresh token cookie | Cookie |
+| `POST` | `/auth/logout` | Clear refresh token cookie | Public |
 | `GET` | `/auth/profile` | Get current user profile | JWT |
+
+#### Refresh Token Flow
+
+The authentication system uses a dual-token approach:
+
+1. **Access Token** (short-lived, 15m default)
+   - Returned in response body
+   - Used in `Authorization: Bearer <token>` header
+   - Short expiration for security
+
+2. **Refresh Token** (long-lived, 7d default)
+   - Stored as HTTP-only cookie (not accessible via JavaScript)
+   - Automatically sent with requests to `/auth/refresh`
+   - Used to obtain new access tokens without re-login
+
+**Cookie Settings:**
+- `httpOnly: true` - Prevents XSS attacks
+- `secure: true` (in production) - HTTPS only
+- `sameSite: strict` - Prevents CSRF attacks
+- `maxAge: 7 days`
 
 ### Users (Super Admin Only)
 
