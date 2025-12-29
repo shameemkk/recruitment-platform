@@ -44,4 +44,29 @@ export class RoleController {
   remove(@Param('id', ParseObjectIdPipe) id: string) {
     return this.roleService.remove(id);
   }
+
+  // Simple permission management by key
+  @Post(':id/permissions/:permissionKey')
+  addPermission(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Param('permissionKey') permissionKey: string,
+  ) {
+    return this.roleService.addPermissionByKey(id, permissionKey);
+  }
+
+  @Delete(':id/permissions/:permissionKey')
+  removePermission(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Param('permissionKey') permissionKey: string,
+  ) {
+    return this.roleService.removePermissionByKey(id, permissionKey);
+  }
+
+  @Post(':id/permissions')
+  addMultiplePermissions(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() body: { permissions: string[] },
+  ) {
+    return this.roleService.addMultiplePermissionsByKey(id, body.permissions);
+  }
 }
