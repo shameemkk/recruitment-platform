@@ -2,6 +2,18 @@
 
 A NestJS-based recruitment management system with role-based access control (RBAC), supporting multi-tenant operations for managing clients, job vacancies, candidates, and recruitment workflows.
 
+## API Documentation
+
+A Postman collection is available for testing all API endpoints:
+
+📁 **Location:** [`docs/postman-collection.json`](docs/postman-collection.json)
+
+**How to use:**
+1. Import the collection into Postman
+2. Set the `baseUrl` variable (default: `http://localhost:3000`)
+3. Run the "Login" request first to auto-populate the `accessToken` variable
+4. All subsequent requests will use the token automatically
+
 ## Setup Instructions
 
 ### Prerequisites

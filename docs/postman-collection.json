@@ -1,0 +1,485 @@
+{
+	"info": {
+		"_postman_id": "99eaec4b-6101-447a-8f9d-1ad733c70f07",
+		"name": "Recruitment Platform",
+		"description": "REST API collection for the Recruitment Platform. Includes endpoints for authentication, user management, role-based access control, client management, job templates, job vacancies, and candidate tracking. Uses JWT authentication with refresh token support.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Authentication endpoints for user login, logout, token refresh, and profile retrieval. Login returns JWT access token and sets HTTP-only refresh token cookie.",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.access_token) {",
+									"    pm.collectionVariables.set(\"accessToken\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@system.com\",\n    \"password\": \"AdminSecure@2025!\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/auth/profile", "host": ["{{baseUrl}}"], "path": ["auth", "profile"] }
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.access_token) {",
+									"    pm.collectionVariables.set(\"accessToken\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] },
+						"description": "Refresh access token using HTTP-only cookie. The refresh token is automatically sent via cookie."
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] },
+						"description": "Clears the refresh token cookie and logs out the user."
+					}
+				}
+			]
+		},
+		{
+			"name": "Permissions (Super Admin Only)",
+			"description": "Manage system permissions. Only super admins can create, update, or delete permissions. Permissions are assigned to roles to control access.",
+			"item": [
+				{
+					"name": "Create Permission",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"key\": \"CREATE_CLIENT\",\n    \"description\": \"Permission to create new clients\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/permissions", "host": ["{{baseUrl}}"], "path": ["permissions"] }
+					}
+				},
+				{
+					"name": "Get All Permissions",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/permissions", "host": ["{{baseUrl}}"], "path": ["permissions"] }
+					}
+				},
+			
+	{
+					"name": "Get Permission by ID",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/permissions/:id", "host": ["{{baseUrl}}"], "path": ["permissions", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Update Permission",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"key\": \"CREATE_CLIENT_UPDATED\",\n    \"description\": \"Updated description\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/permissions/:id", "host": ["{{baseUrl}}"], "path": ["permissions", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Delete Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/permissions/:id", "host": ["{{baseUrl}}"], "path": ["permissions", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Roles (Super Admin Only)",
+			"description": "Manage user roles and their associated permissions. Roles define what actions users can perform. Only super admins can manage roles.",
+			"item": [
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"name\": \"MANAGER\",\n    \"permissions\": [],\n    \"isSuperAdmin\": false\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] }
+					}
+				},
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/roles", "host": ["{{baseUrl}}"], "path": ["roles"] }
+					}
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/roles/:id", "host": ["{{baseUrl}}"], "path": ["roles", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"name\": \"SENIOR_MANAGER\",\n    \"permissions\": []\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/roles/:id", "host": ["{{baseUrl}}"], "path": ["roles", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/roles/:id", "host": ["{{baseUrl}}"], "path": ["roles", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Add Permission by Key",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/roles/:id/permissions/:permissionKey", "host": ["{{baseUrl}}"], "path": ["roles", ":id", "permissions", ":permissionKey"], "variable": [{ "key": "id", "value": "" }, { "key": "permissionKey", "value": "CREATE_CLIENT" }] }
+					}
+				},
+				{
+					"name": "Remove Permission by Key",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/roles/:id/permissions/:permissionKey", "host": ["{{baseUrl}}"], "path": ["roles", ":id", "permissions", ":permissionKey"], "variable": [{ "key": "id", "value": "" }, { "key": "permissionKey", "value": "CREATE_CLIENT" }] }
+					}
+				},
+				{
+					"name": "Add Multiple Permissions by Keys",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"permissions\": [\"CREATE_CLIENT\", \"READ_CLIENT\", \"UPDATE_CLIENT\"]\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/roles/:id/permissions", "host": ["{{baseUrl}}"], "path": ["roles", ":id", "permissions"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				}
+			]
+		},
+
+		{
+			"name": "Users (Super Admin Only)",
+			"description": "Manage platform users. Create, update, and delete user accounts. Assign roles to users. Only super admins can manage users.",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"fullName\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"password123\",\n    \"roleId\": \"\",\n    \"isActive\": true\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+					}
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/users/:id", "host": ["{{baseUrl}}"], "path": ["users", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"fullName\": \"John Doe Updated\",\n    \"isActive\": false\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/users/:id", "host": ["{{baseUrl}}"], "path": ["users", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/users/:id", "host": ["{{baseUrl}}"], "path": ["users", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Clients",
+			"description": "Manage client companies that post job vacancies. Clients can be assigned to employees and have contact information and notes.",
+			"item": [
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"name\": \"Acme Corporation\",\n    \"email\": \"contact@acme.com\",\n    \"phone\": \"+1234567890\",\n    \"company\": \"Acme Corp\",\n    \"address\": \"123 Business St, City\",\n    \"notes\": \"Important client\",\n    \"assignedEmployeeId\": \"\",\n    \"isActive\": true\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/clients", "host": ["{{baseUrl}}"], "path": ["clients"] }
+					}
+				},
+				{
+					"name": "Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/clients", "host": ["{{baseUrl}}"], "path": ["clients"] }
+					}
+				},
+				{
+					"name": "Get Client by ID",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/clients/:id", "host": ["{{baseUrl}}"], "path": ["clients", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Update Client",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"name\": \"Acme Corporation Updated\",\n    \"phone\": \"+0987654321\",\n    \"isActive\": false\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/clients/:id", "host": ["{{baseUrl}}"], "path": ["clients", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Delete Client",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/clients/:id", "host": ["{{baseUrl}}"], "path": ["clients", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				}
+			]
+		},
+
+		{
+			"name": "Job Templates",
+			"description": "Manage reusable job templates with custom fields. Templates define the data structure for candidate applications.",
+			"item": [
+				{
+					"name": "Create Job Template",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"name\": \"Software Developer\",\n    \"description\": \"Template for software developer positions\",\n    \"fields\": [\n        { \"key\": \"fullName\", \"type\": \"text\", \"required\": true },\n        { \"key\": \"email\", \"type\": \"email\", \"required\": true },\n        { \"key\": \"experience\", \"type\": \"number\", \"required\": false }\n    ],\n    \"isActive\": true\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/job-templates", "host": ["{{baseUrl}}"], "path": ["job-templates"] }
+					}
+				},
+				{
+					"name": "Get All Job Templates",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-templates", "host": ["{{baseUrl}}"], "path": ["job-templates"] }
+					}
+				},
+				{
+					"name": "Get Job Template by ID",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-templates/:id", "host": ["{{baseUrl}}"], "path": ["job-templates", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Update Job Template",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"name\": \"Senior Software Developer\",\n    \"description\": \"Updated template\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/job-templates/:id", "host": ["{{baseUrl}}"], "path": ["job-templates", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Delete Job Template",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-templates/:id", "host": ["{{baseUrl}}"], "path": ["job-templates", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Job Vacancies",
+			"description": "Manage job openings linked to clients and templates. Vacancies can be assigned to agencies and filtered by client.",
+			"item": [
+				{
+					"name": "Create Job Vacancy",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"title\": \"Senior Developer Position\",\n    \"description\": \"Looking for experienced developer\",\n    \"clientId\": \"\",\n    \"jobTemplateId\": \"\",\n    \"assignedAgencies\": [],\n    \"isActive\": true\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/job-vacancies", "host": ["{{baseUrl}}"], "path": ["job-vacancies"] }
+					}
+				},
+				{
+					"name": "Get All Job Vacancies",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-vacancies", "host": ["{{baseUrl}}"], "path": ["job-vacancies"] }
+					}
+				},
+				{
+					"name": "Get Job Vacancies by Client",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-vacancies?clientId=", "host": ["{{baseUrl}}"], "path": ["job-vacancies"], "query": [{ "key": "clientId", "value": "" }] }
+					}
+				},
+				{
+					"name": "Get Job Vacancy by ID",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-vacancies/:id", "host": ["{{baseUrl}}"], "path": ["job-vacancies", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Update Job Vacancy",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"title\": \"Updated Position Title\",\n    \"isActive\": false\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/job-vacancies/:id", "host": ["{{baseUrl}}"], "path": ["job-vacancies", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Delete Job Vacancy",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-vacancies/:id", "host": ["{{baseUrl}}"], "path": ["job-vacancies", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Assign Agency to Vacancy",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-vacancies/:id/agencies/:agencyId", "host": ["{{baseUrl}}"], "path": ["job-vacancies", ":id", "agencies", ":agencyId"], "variable": [{ "key": "id", "value": "" }, { "key": "agencyId", "value": "" }] }
+					}
+				},
+				{
+					"name": "Remove Agency from Vacancy",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/job-vacancies/:id/agencies/:agencyId", "host": ["{{baseUrl}}"], "path": ["job-vacancies", ":id", "agencies", ":agencyId"], "variable": [{ "key": "id", "value": "" }, { "key": "agencyId", "value": "" }] }
+					}
+				}
+			]
+		},
+
+		{
+			"name": "Candidates",
+			"description": "Manage candidate applications for job vacancies. Track candidate status, notes, and application data based on job template fields.",
+			"item": [
+				{
+					"name": "Create Candidate",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"jobVacancyId\": \"\",\n    \"data\": {\n        \"fullName\": \"Jane Smith\",\n        \"email\": \"jane.smith@example.com\",\n        \"experience\": 5\n    },\n    \"status\": \"pending\",\n    \"notes\": \"Strong candidate\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/candidates", "host": ["{{baseUrl}}"], "path": ["candidates"] }
+					}
+				},
+				{
+					"name": "Get All Candidates",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/candidates", "host": ["{{baseUrl}}"], "path": ["candidates"] }
+					}
+				},
+				{
+					"name": "Get Candidates by Job Vacancy",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/candidates?jobVacancyId=", "host": ["{{baseUrl}}"], "path": ["candidates"], "query": [{ "key": "jobVacancyId", "value": "" }] }
+					}
+				},
+				{
+					"name": "Get Candidate by ID",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/candidates/:id", "host": ["{{baseUrl}}"], "path": ["candidates", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Update Candidate",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"body": { "mode": "raw", "raw": "{\n    \"status\": \"shortlisted\",\n    \"notes\": \"Passed initial screening\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/candidates/:id", "host": ["{{baseUrl}}"], "path": ["candidates", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				},
+				{
+					"name": "Delete Candidate",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+						"url": { "raw": "{{baseUrl}}/candidates/:id", "host": ["{{baseUrl}}"], "path": ["candidates", ":id"], "variable": [{ "key": "id", "value": "" }] }
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+		{ "key": "accessToken", "value": "", "type": "string" }
+	]
+}
